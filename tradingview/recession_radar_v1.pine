@@ -104,6 +104,15 @@ plotchar(
     location=location.bottom
 )
 
+plotshape(
+    warning,
+    title="Asset Context Active",
+    text="MACRO WARNING",
+    style=shape.labeldown,
+    location=location.top,
+    size=size.tiny
+)
+
 // ============================================================
 // WARNING THRESHOLD
 // ============================================================
@@ -122,7 +131,7 @@ bgcolor(warning ? color.new(color.red, 88) : na, title="Warning Regime")
 // CURRENT STATUS TABLE
 // ============================================================
 
-var table dashboard = table.new(position.top_right, 2, 9, border_width=1)
+var table dashboard = table.new(position.top_right, 2, 14, border_width=1)
 
 if barstate.islast
     table.cell(dashboard, 0, 0, "RECESSION RADAR")
@@ -151,6 +160,21 @@ if barstate.islast
 
 table.cell(dashboard, 0, 8, "Threshold Gap")
 table.cell(dashboard, 1, 8, str.tostring(radarScore - WARNING_THRESHOLD, "#.0"))
+
+table.cell(dashboard, 0, 9, "Asset Context")
+table.cell(dashboard, 1, 9, warning ? "ACTIVE" : "INACTIVE")
+
+table.cell(dashboard, 0, 10, "Gold")
+table.cell(dashboard, 1, 10, warning ? "Defensive bias" : "—")
+
+table.cell(dashboard, 0, 11, "Oil")
+table.cell(dashboard, 1, 11, warning ? "Vulnerable" : "—")
+ 
+table.cell(dashboard, 0, 12, "Evidence")
+table.cell(dashboard, 1, 12, "LIMITED")
+
+table.cell(dashboard, 0, 13, "Equity Bias")
+table.cell(dashboard, 1, 13, warning ? "Large > Small" : "—")
 
 // ============================================================
 // ALERTS
