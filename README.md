@@ -115,3 +115,17 @@ The complete live system can be run with:
 
 ```bash
 python update_radar.py
+
+## TradingView Asset Context
+
+The TradingView version of Recession Radar includes an experimental cross-asset context layer.
+
+When the recession-warning regime is active, the dashboard displays historical tendencies observed after Radar warning activations:
+
+- Gold: defensive bias
+- Oil: vulnerable
+- Large-cap equities: relative strength versus small caps
+
+These relationships are based on a small number of independent warning events and are therefore labelled **limited evidence**.
+
+They are not direct buy or sell signals.
