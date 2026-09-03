@@ -1,0 +1,70 @@
+# Environment variables / secrets
+.env
+.env.*
+*.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# VS Code
+.vscode/
+
+# Operating system
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.log
+
+# Local environments
+venv/
+.venv/
+env/
+
+# Generated / temporary chart copies
+data/*.png
+
+# Python caches anywhere in project
+**/__pycache__/
+
+# Local experiment outputs
+*.log
+
+# ------------------------------------------------------------
+# Research archive
+# ------------------------------------------------------------
+research/
+
+# Local project-management utilities
+project_inventory.py
+classify_project_files.py
+audit_production_dependencies.py
+move_research_scripts.py
+
+# Development notes / scratch outputs
+MODEL_NOTES.md
+model_results.txt
+
+
+# ------------------------------------------------------------
+# Data
+# Ignore experimental CSVs by default
+# ------------------------------------------------------------
+data/*.csv
+
+# Keep production / reproducibility datasets
+!data/recession_radar_dataset.csv
+!data/recession_radar_point_in_time.csv
+!data/point_in_time_core4_predictions.csv
+!data/core4_v1_coefficients.csv
+
+# Keep current live outputs
+!data/live_core4_latest.csv
+!data/live_radar_output.csv
+!data/current_radar_context.csv
+!data/live_feature_contributions.csv
+!data/current_radar_snapshot.csv
+!data/recession_radar_history_v1.csv

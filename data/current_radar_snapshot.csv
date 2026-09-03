@@ -1,0 +1,2 @@
+observation_date,radar_score,warning_threshold,warning,historical_percentile,signal_state,unemployment,yield_curve,initial_claims,industrial_growth,strongest_driver,strongest_driver_contribution
+2026-08-31,17.00451816278931,35.0,0,62.725450901803605,Normal range,4.1,0.3768181818181818,203250.0,1.0794551200266955,Yield curve,0.8539362644788017

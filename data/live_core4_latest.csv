@@ -1,0 +1,2 @@
+observation_date,source_month,unemployment_source_date,unemployment_pit,yield_curve_pit,yield_days_used,claims_pit,claims_weeks_used,indpro_latest_source_date,indpro_latest_value,indpro_year_ago_source_date,indpro_year_ago_value,industrial_growth_pit
+2026-08-31,2026-07-31,2026-07-01,4.1,0.3768181818181818,22,203250.0,4,2026-07-01,102.9939,2025-07-01,101.894,1.0794551200266955
