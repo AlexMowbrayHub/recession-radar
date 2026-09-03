@@ -1,0 +1,6 @@
+SPY
+IWM
+GLD
+USO
+UUP
+TLT

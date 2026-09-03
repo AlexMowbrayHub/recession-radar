@@ -9,6 +9,7 @@ scripts = [
     "current_score_percentile.py",
     "live_feature_contributions.py",
     "build_current_snapshot.py",
+    "current_asset_context.py",
 ]
 
 

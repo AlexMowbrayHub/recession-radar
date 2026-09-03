@@ -14,6 +14,7 @@ required_files = [
     "data/current_radar_snapshot.csv",
     "data/recession_radar_history_v1.csv",
     "MODEL_CARD.md",
+    "data/current_asset_context.csv",
     "README.md"
 ]
 
