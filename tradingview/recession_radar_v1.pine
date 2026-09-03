@@ -1,0 +1,160 @@
+//@version=6
+indicator("Recession Radar v1.0 — US Macro Regime", shorttitle="Recession Radar", overlay=false, precision=1)
+
+// ============================================================
+// FROZEN MODEL CONSTANTS
+// ============================================================
+
+// Unemployment
+float UNEMP_MEAN = 6.0328070175
+float UNEMP_SCALE = 1.7714284596
+float UNEMP_COEF = -0.3750787000
+
+// 10Y-2Y yield curve
+float YIELD_MEAN = 0.8460836333
+float YIELD_SCALE = 0.9305186587
+float YIELD_COEF = -1.6932924103
+
+// Initial claims
+float CLAIMS_MEAN = 379581.4035087719
+float CLAIMS_SCALE = 264814.6457624858
+float CLAIMS_COEF = -0.0249181030
+
+// Industrial production YoY
+float INDPRO_MEAN = 2.0152720750
+float INDPRO_SCALE = 4.3947284085
+float INDPRO_COEF = -0.2908922102
+
+// Logistic regression intercept
+float INTERCEPT = -2.9270269913
+
+// Locked warning threshold
+float WARNING_THRESHOLD = 35.0
+
+// ============================================================
+// MACRO DATA
+// ============================================================
+
+// Monthly unemployment
+float unemployment = request.security("FRED:UNRATE", "M", close)
+
+// Approximate previous-month yield-curve state using 21 daily observations
+float yieldCurve = request.security("FRED:T10Y2Y", "D", ta.sma(close, 21)[22])
+
+// Approximate monthly initial claims using four weekly observations
+float claims = request.security("FRED:ICSA", "W", ta.sma(close, 4)[4])
+
+// Industrial production YoY growth
+float industrialGrowth = request.security("FRED:INDPRO", "M", (close / close[12] - 1.0) * 100.0)
+
+// ============================================================
+// STANDARDIZATION
+// ============================================================
+
+float zUnemployment = (unemployment - UNEMP_MEAN) / UNEMP_SCALE
+float zYield = (yieldCurve - YIELD_MEAN) / YIELD_SCALE
+float zClaims = (claims - CLAIMS_MEAN) / CLAIMS_SCALE
+float zIndustrial = (industrialGrowth - INDPRO_MEAN) / INDPRO_SCALE
+
+// ============================================================
+// FROZEN LOGISTIC REGRESSION
+// ============================================================
+
+float logOdds = INTERCEPT + zUnemployment * UNEMP_COEF + zYield * YIELD_COEF + zClaims * CLAIMS_COEF + zIndustrial * INDPRO_COEF
+float probability = 1.0 / (1.0 + math.exp(-logOdds))
+float radarScore = probability * 100.0
+
+// ============================================================
+// SIGNAL STATES
+// ============================================================
+
+bool warning = radarScore >= WARNING_THRESHOLD
+bool warningCrossUp = ta.crossover(radarScore, WARNING_THRESHOLD)
+bool warningCrossDown = ta.crossunder(radarScore, WARNING_THRESHOLD)
+
+string signalState = "BELOW HISTORICAL MEDIAN"
+
+if radarScore >= 35.0
+    signalState := "WARNING"
+else if radarScore >= 28.74
+    signalState := "ELEVATED"
+else if radarScore >= 9.65
+    signalState := "NORMAL RANGE"
+
+// ============================================================
+// MAIN RADAR PLOT
+// ============================================================
+
+plot(
+    radarScore,
+    title="Radar Score",
+    linewidth=2,
+    style=plot.style_stepline
+)
+plotchar(
+    warningCrossUp,
+    title="Warning Activation",
+    char="▲",
+    location=location.top
+)
+plotchar(
+    warningCrossDown,
+    title="Warning Deactivation",
+    char="▼",
+    location=location.bottom
+)
+
+// ============================================================
+// WARNING THRESHOLD
+// ============================================================
+
+hline(35.0, title="Warning Threshold", linestyle=hline.style_dashed)
+hline(0.0, title="Zero")
+hline(100.0, title="Maximum")
+
+// ============================================================
+// WARNING BACKGROUND
+// ============================================================
+
+bgcolor(warning ? color.new(color.red, 88) : na, title="Warning Regime")
+
+// ============================================================
+// CURRENT STATUS TABLE
+// ============================================================
+
+var table dashboard = table.new(position.top_right, 2, 9, border_width=1)
+
+if barstate.islast
+    table.cell(dashboard, 0, 0, "RECESSION RADAR")
+    table.cell(dashboard, 1, 0, "v1.0")
+
+    table.cell(dashboard, 0, 1, "Radar Score")
+    table.cell(dashboard, 1, 1, str.tostring(radarScore, "#.0"))
+
+    table.cell(dashboard, 0, 2, "State")
+    table.cell(dashboard, 1, 2, signalState)
+
+    table.cell(dashboard, 0, 3, "Warning")
+    table.cell(dashboard, 1, 3, warning ? "ON" : "OFF")
+
+    table.cell(dashboard, 0, 4, "Unemployment")
+    table.cell(dashboard, 1, 4, str.tostring(unemployment, "#.0") + "%")
+
+    table.cell(dashboard, 0, 5, "10Y-2Y")
+    table.cell(dashboard, 1, 5, str.tostring(yieldCurve, "#.000"))
+
+    table.cell(dashboard, 0, 6, "Claims")
+    table.cell(dashboard, 1, 6, str.tostring(claims, "#"))
+
+    table.cell(dashboard, 0, 7, "INDPRO YoY")
+    table.cell(dashboard, 1, 7, str.tostring(industrialGrowth, "#.00") + "%")
+
+table.cell(dashboard, 0, 8, "Threshold Gap")
+table.cell(dashboard, 1, 8, str.tostring(radarScore - WARNING_THRESHOLD, "#.0"))
+
+// ============================================================
+// ALERTS
+// ============================================================
+
+alertcondition(warningCrossUp, title="Recession Radar — Warning ON", message="Recession Radar has crossed ABOVE the 35 warning threshold.")
+alertcondition(warningCrossDown, title="Recession Radar — Warning OFF", message="Recession Radar has crossed BELOW the 35 warning threshold.")
