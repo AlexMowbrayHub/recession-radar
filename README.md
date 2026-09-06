@@ -17,6 +17,12 @@ The current score is below the warning threshold and sits around the middle of t
 
 > Recession Radar is a macroeconomic regime indicator. The score should not be interpreted as a literal probability of recession.
 
+## Historical Recession Radar Signal
+
+![Recession Radar historical signal](outputs/recession_radar_historical.png)
+
+The chart shows the historical Recession Radar score, the fixed warning threshold of 35, and NBER recession periods. The score is a model-derived risk indicator rather than a literal recession probability.
+
 ---
 
 ## Core Indicators
