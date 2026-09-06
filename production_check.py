@@ -15,6 +15,7 @@ required_files = [
     "data/recession_radar_history_v1.csv",
     "MODEL_CARD.md",
     "data/current_asset_context.csv",
+    "data/current_rotation_context.csv",
     "README.md"
 ]
 
@@ -151,6 +152,38 @@ print(
 print()
 
 print("=" * 85)
+
+# --------------------------------------------------
+# CHECK CURRENT ROTATION CONTEXT
+# --------------------------------------------------
+
+rotation = pd.read_csv(
+    "data/current_rotation_context.csv"
+)
+
+required_rotation_columns = [
+    "radar_score",
+    "warning",
+    "rotation_context",
+    "description",
+    "evidence_status",
+]
+
+missing_rotation_columns = [
+    column
+    for column in required_rotation_columns
+    if column not in rotation.columns
+]
+
+if missing_rotation_columns:
+    raise ValueError(
+        "Rotation context missing columns: "
+        + ", ".join(missing_rotation_columns)
+    )
+
+print(
+    "PASS: Current rotation context"
+)
 
 print(
     "RECESSION RADAR v1.0 PRODUCTION CHECK PASSED"

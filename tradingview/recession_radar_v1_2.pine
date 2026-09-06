@@ -1,5 +1,5 @@
 //@version=6
-indicator("Recession Radar v1.0 — US Macro Regime", shorttitle="Recession Radar", overlay=false, precision=1)
+indicator("Recession Radar v1.2 — US Macro Regime", shorttitle="Recession Radar", overlay=false, precision=1)
 
 // ============================================================
 // FROZEN MODEL CONSTANTS
@@ -80,6 +80,7 @@ else if radarScore >= 28.74
     signalState := "ELEVATED"
 else if radarScore >= 9.65
     signalState := "NORMAL RANGE"
+string equityContext = radarScore < 9.65 ? "Small-cap favourable history" : radarScore < 28.74 ? "Neutral" : radarScore < 35.0 ? "Large-cap strength watch" : "Historical large-cap bias"
 
 // ============================================================
 // MAIN RADAR PLOT
@@ -132,7 +133,7 @@ var table dashboard = table.new(position.top_right, 2, 15, border_width=1)
 
 if barstate.islast
     table.cell(dashboard, 0, 0, "RECESSION RADAR")
-    table.cell(dashboard, 1, 0, "v1.0")
+    table.cell(dashboard, 1, 0, "v1.2")
 
     table.cell(dashboard, 0, 1, "Radar Score")
     table.cell(dashboard, 1, 1, str.tostring(radarScore, "#.0"))
@@ -143,38 +144,38 @@ if barstate.islast
     table.cell(dashboard, 0, 3, "Warning")
     table.cell(dashboard, 1, 3, warning ? "ON" : "OFF")
 
-    table.cell(dashboard, 0, 4, "Unemployment")
-    table.cell(dashboard, 1, 4, str.tostring(unemployment, "#.0") + "%")
+    table.cell(dashboard, 0, 4, "Equity Context")
+    table.cell(dashboard, 1, 4, equityContext)
 
-    table.cell(dashboard, 0, 5, "10Y-2Y")
-    table.cell(dashboard, 1, 5, str.tostring(yieldCurve, "#.000"))
+    table.cell(dashboard, 0, 5, "Unemployment")
+    table.cell(dashboard, 1, 5, str.tostring(unemployment, "#.0") + "%")
 
-    table.cell(dashboard, 0, 6, "Claims")
-    table.cell(dashboard, 1, 6, str.tostring(claims, "#"))
+    table.cell(dashboard, 0, 6, "10Y-2Y")
+    table.cell(dashboard, 1, 6, str.tostring(yieldCurve, "#.000"))
 
-    table.cell(dashboard, 0, 7, "INDPRO YoY")
-    table.cell(dashboard, 1, 7, str.tostring(industrialGrowth, "#.00") + "%")
+    table.cell(dashboard, 0, 7, "Claims")
+    table.cell(dashboard, 1, 7, str.tostring(claims, "#"))
 
-table.cell(dashboard, 0, 8, "Threshold Gap")
-table.cell(dashboard, 1, 8, str.tostring(radarScore - WARNING_THRESHOLD, "#.0"))
+    table.cell(dashboard, 0, 8, "INDPRO YoY")
+    table.cell(dashboard, 1, 8, str.tostring(industrialGrowth, "#.00") + "%")
 
-table.cell(dashboard, 0, 9, "Asset Context")
-table.cell(dashboard, 1, 9, warning ? "ACTIVE" : "INACTIVE")
+    table.cell(dashboard, 0, 9, "Threshold Gap")
+    table.cell(dashboard, 1, 9, str.tostring(radarScore - WARNING_THRESHOLD, "#.0"))
 
-table.cell(dashboard, 0, 10, "Gold")
-table.cell(dashboard, 1, 10, warning ? "Defensive bias" : "—")
+    table.cell(dashboard, 0, 10, "3M Score Change")
+    table.cell(dashboard, 1, 10, str.tostring(radarChange3m, "#.0"))
 
-table.cell(dashboard, 0, 11, "Oil")
-table.cell(dashboard, 1, 11, warning ? "Vulnerable" : "—")
- 
-table.cell(dashboard, 0, 12, "Evidence")
-table.cell(dashboard, 1, 12, "LIMITED")
+    table.cell(dashboard, 0, 11, "Asset Context")
+    table.cell(dashboard, 1, 11, warning ? "ACTIVE" : "INACTIVE")
 
-table.cell(dashboard, 0, 13, "Equity Bias")
-table.cell(dashboard, 1, 13, warning ? "Large > Small" : "—")
+    table.cell(dashboard, 0, 12, "Gold")
+    table.cell(dashboard, 1, 12, warning ? "Defensive bias" : "—")
 
-table.cell(dashboard, 0, 14, "3M Score Change")
-table.cell(dashboard, 1, 14, str.tostring(radarChange3m, "#.0"))
+    table.cell(dashboard, 0, 13, "Oil")
+    table.cell(dashboard, 1, 13, warning ? "Vulnerable" : "—")
+
+    table.cell(dashboard, 0, 14, "Evidence")
+    table.cell(dashboard, 1, 14, "LIMITED")
 
 // ============================================================
 // ALERTS

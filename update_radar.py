@@ -10,6 +10,7 @@ scripts = [
     "live_feature_contributions.py",
     "build_current_snapshot.py",
     "current_asset_context.py",
+    "current_rotation_context.py",
 ]
 
 
