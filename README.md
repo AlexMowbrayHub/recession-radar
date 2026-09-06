@@ -1,131 +1,98 @@
 # Recession Radar
 
-Recession Radar is a Python-based early-warning system designed to identify periods of elevated risk that a US recession will begin within the following 12 months.
+A point-in-time-aware US recession-risk early-warning system built using public macroeconomic data from FRED and ALFRED.
 
-The project combines macroeconomic data from FRED and ALFRED with an interpretable logistic-regression model and a point-in-time-aware historical evaluation framework.
+Recession Radar combines four macro indicators into a live 0–100 risk score using a frozen logistic regression model, with historical validation, automated production checks, feature-level attribution and a TradingView deployment.
+
+---
 
 ## Current Reading
 
-**Radar Score: 17.0 / 100**
+**Radar Score:** 17.0  
+**State:** Normal Range  
+**Warning:** OFF  
+**Warning Threshold:** 35.0
 
-**Signal: Normal range**
+The current score is below the warning threshold and sits around the middle of the historical distribution.
 
-**Warning: OFF**
-
-Latest observation: August 2026.
-
-The warning threshold is 35.
-
-The Radar score is a model score and should not be interpreted as a calibrated probability of recession.
+> Recession Radar is a macroeconomic regime indicator. The score should not be interpreted as a literal probability of recession.
 
 ---
 
 ## Core Indicators
 
-Recession Radar uses four macroeconomic indicators:
+The production model uses four economic indicators:
 
-- US unemployment rate
-- 10-year minus 2-year Treasury yield spread
-- Initial unemployment claims
-- Industrial production year-over-year growth
+| Indicator | FRED Series | Role |
+|---|---|---|
+| Unemployment Rate | `UNRATE` | Labour-market conditions |
+| 10Y–2Y Treasury Spread | `T10Y2Y` | Yield-curve / monetary-cycle stress |
+| Initial Jobless Claims | `ICSA` | Faster-moving labour-market deterioration |
+| Industrial Production | `INDPRO` | Real-economy activity |
 
-These variables capture labour-market conditions, the yield curve and real economic activity.
+All four are standardised before entering the logistic regression model.
+
+---
+
+## Model
+
+The production version uses:
+
+- StandardScaler
+- Logistic Regression
+- Four frozen macroeconomic features
+- Fixed warning threshold of 35
+- Monthly observation frequency
+
+The model is intentionally kept simple.
+
+More complex feature-engineering variants were tested but did not improve performance enough to justify the additional complexity and did not adequately resolve the major 2022–24 false-warning regime.
+
+---
+
+## Point-in-Time Validation
+
+The headline point-in-time-aware historical evaluation produced:
+
+| Metric | Result |
+|---|---:|
+| ROC AUC | **0.848** |
+| Precision-Recall AUC | **0.256** |
+| Holdout Precision | **0.321** |
+| Holdout Recall | **0.708** |
+| Holdout F1 | **0.442** |
+
+The holdout period covered 2005–2025.
+
+The model detected both the 2008 and 2020 recession starts within the 12-month warning horizon.
+
+Historical feature construction is designed to reduce look-ahead bias by approximating the information that would have been available at the time.
 
 ---
 
 ## Methodology
 
-The target equals 1 when an NBER recession begins within the following 12 months and 0 otherwise.
+The target is defined as:
 
-The benchmark model uses:
+> A recession start occurring within the next 12 months.
 
-- StandardScaler
-- Logistic Regression
-- Expanding walk-forward evaluation
-- A temporal purge between training and test observations
-- Point-in-time-aware macroeconomic data where available
+At month `t`, the target equals 1 if an NBER recession begins during months `t+1` through `t+12`.
 
-The historical model is evaluated using information designed to approximate what would have been available at each prediction date.
+This makes Recession Radar an early-warning system rather than a contemporaneous recession classifier.
 
----
+The production workflow is:
 
-## Historical Performance
-
-Point-in-time-aware walk-forward performance:
-
-**ROC-AUC: 0.8482**
-
-**PR-AUC: 0.2562**
-
-Year-block bootstrap 95% intervals:
-
-- ROC-AUC: 0.7542–0.9356
-- PR-AUC: 0.0965–0.5012
-
-The warning threshold of **0.35** was selected using pre-2005 development data.
-
-Post-2005 evaluation:
-
-- ROC-AUC: 0.8151
-- PR-AUC: 0.2243
-- Precision: 0.3208
-- Recall: 0.7083
-- F1: 0.4416
-
----
-
-## Historical Recession Signals
-
-In the post-2005 evaluation period, the model generated warning signals ahead of both recession starts:
-
-- 2008 recession: earliest warning 12 months before recession start
-- 2020 recession: earliest warning 11 months before recession start
-
-This represents only two recession events and should not be interpreted as evidence of universal recession-detection ability.
-
----
-
-## Known Failure Regime
-
-Recession Radar produced a prolonged false-warning regime between 2022 and 2024.
-
-Analysis indicated that the signal was driven primarily by the unusually deep yield-curve inversion.
-
-Alternative specifications were tested, including labour-market confirmation variables, momentum features, credit spreads and a nonlinear gradient-boosting model.
-
-These alternatives were rejected when they failed to improve overall out-of-sample performance or introduced additional overfitting risk.
-
-The original Core-4 specification was therefore retained.
-
----
-
-## Live System
-
-The deployment pipeline:
-
-1. Retrieves current macroeconomic data.
-2. Constructs the same four features used by the historical model.
-3. Loads the frozen Core-4 model.
-4. Generates the current Radar score.
-5. Calculates the score's historical percentile.
-6. Identifies the largest model drivers.
-7. Updates the historical output files.
-
-The complete live system can be run with:
-
-```bash
-python update_radar.py
-
-## TradingView Asset Context
-
-The TradingView version of Recession Radar includes an experimental cross-asset context layer.
-
-When the recession-warning regime is active, the dashboard displays historical tendencies observed after Radar warning activations:
-
-- Gold: defensive bias
-- Oil: vulnerable
-- Large-cap equities: relative strength versus small caps
-
-These relationships are based on a small number of independent warning events and are therefore labelled **limited evidence**.
-
-They are not direct buy or sell signals.
+```text
+FRED / ALFRED macro data
+          ↓
+Point-in-time feature construction
+          ↓
+Core-4 standardisation
+          ↓
+Frozen logistic regression
+          ↓
+0–100 Radar Score
+          ↓
+Warning threshold / percentile / drivers
+          ↓
+TradingView + historical market context
