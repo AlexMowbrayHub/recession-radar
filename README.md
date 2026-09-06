@@ -102,3 +102,34 @@ Frozen logistic regression
 Warning threshold / percentile / drivers
           ↓
 TradingView + historical market context
+
+---
+
+## TradingView Implementation
+
+Recession Radar has also been implemented in **Pine Script v6** as a live TradingView indicator using the frozen Core-4 model.
+
+![Recession Radar TradingView implementation](outputs/recession_radar_tradingview.png)
+
+The TradingView dashboard displays:
+
+- Radar Score
+- Signal State
+- Warning status
+- Historical equity context
+- Unemployment rate
+- 10Y–2Y Treasury spread
+- Initial jobless claims
+- Industrial production YoY growth
+- Distance from the warning threshold
+- 3-month change in the Radar Score
+
+The Pine implementation uses the same frozen Core-4 logistic regression coefficients as the Python production model.
+
+Because TradingView accesses currently available FRED series, historical values displayed by the Pine implementation may incorporate subsequent revisions to macroeconomic data. It should therefore be viewed as a live deployment and historical proxy rather than a perfect reconstruction of the point-in-time research dataset.
+
+The Pine Script source is available at:
+
+`tradingview/recession_radar_v1_2.pine`
+
+The indicator is currently maintained as a private TradingView script; the full Pine source is publicly available in this repository.
